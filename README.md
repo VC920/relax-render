@@ -2,15 +2,19 @@
 a little pure c program 3d game
 
 ![demo1](./assets/texture/demo1.png)
+![demo2](./assets/texture/demo2.png)
 
 # Build
 make && make run
 
-## Thanks
+## Third
 SDL2
 stb
 glad
 cglm
+
+## Thanks
+kenney
 
 ## 一个大概的流程
 0.平台，api，游戏分离  
