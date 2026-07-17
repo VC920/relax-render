@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include "game.h"
 #include "renderer.h"
+#include "input.h"
 
 // Settings
 int WINDOW_WIDTH = 1280;
@@ -14,38 +15,37 @@ int WINDOW_HEIGHT = 720;
 int main()
 {
     // Initialize window
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
-        return 1;
-    }
+    SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    SDL_Window *window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-        WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP);
-    if (window == NULL) {
-        fprintf(stderr, "SDL_CreateWindow Error: %s\n", SDL_GetError());
-        return 1;
-    }
+    SDL_Window *window = SDL_CreateWindow("",
+					  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+					  WINDOW_WIDTH, WINDOW_HEIGHT,
+					  SDL_WINDOW_OPENGL |
+					  SDL_WINDOW_FULLSCREEN_DESKTOP);
+
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, context);
 
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-        fprintf(stderr, "SDL_GL_GetProcAddress Error");
-    }
+    gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
     // Setting
+    SDL_GL_SetSwapInterval(1);
     SDL_ShowCursor(SDL_DISABLE);
     SDL_SetRelativeMouseMode(SDL_TRUE);
-    SDL_GL_SetSwapInterval(1);
-    // Setup
-    game_init();
 
-    Uint64 last_frame_time = SDL_GetPerformanceCounter();
     Uint64 frequency = SDL_GetPerformanceFrequency();
+    Uint64 last_frame_time = 0;
+    Uint64 current_frame_time = 0;
+    float delta_time = 0;
+    
     bool running = true;
+
+    // Initialize game
+    game_init();
 
     // Main loop
     while (running)
@@ -58,16 +58,13 @@ int main()
                 running = false;
                 break;
             case SDL_KEYDOWN: 
-                if (event.key.repeat == 0) {
-                    game_key_pressed(event.key.keysym.sym);
-                }
-                game_key_down(event.key.keysym.sym);
+		input_set_key(event.key.keysym.sym, true);
                 break;
             case SDL_KEYUP: 
-                game_key_up(event.key.keysym.sym);
+		input_set_key(event.key.keysym.sym, false);
                 break;
             case SDL_MOUSEMOTION:
-                game_mouse_relative_pos(event.motion.xrel, event.motion.yrel);
+                input_set_mouse_rel_pos(event.motion.xrel, event.motion.yrel);
                 break;
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -79,19 +76,19 @@ int main()
             default:
                 break;
             }
-	    }
+	}
 
     	// Update
-        Uint64 current_frame_time = SDL_GetPerformanceCounter();
-        float delta_time = (float)(current_frame_time - last_frame_time) / frequency;
+        current_frame_time = SDL_GetPerformanceCounter();
+        delta_time = (float)(current_frame_time - last_frame_time) / frequency;
         last_frame_time = current_frame_time;
-        printf("Current FPS: %.f\n", 1 / delta_time);
+	game_update(delta_time);
 
-        game_update(delta_time);
-        
+	// Renbder
+	game_render();
         SDL_GL_SwapWindow(window);
     }
 
-     SDL_Quit();
+    SDL_Quit();
     return 0;
 }

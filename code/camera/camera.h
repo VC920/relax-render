@@ -15,9 +15,6 @@ typedef struct {
     float speed;
     float sensitivity;
 
-    float mouse_xrel;
-    float mouse_yrel;
-
     bool can_fly;
     bool move_front;
     bool move_back;
@@ -29,6 +26,8 @@ typedef struct {
 
 Camera camera_init(vec3 position, float speed, float sensitivity);
 
-void camera_update(Camera *camera, float dt);
+void camera_rotate(Camera *camera, int mouse_xrel, int  mouse_yrel);
+
+void camera_move(Camera *camera, float dt);
 
 #endif//CAMERA_H

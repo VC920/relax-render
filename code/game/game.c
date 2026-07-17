@@ -5,6 +5,7 @@
 #include <cglm/cglm.h>
 #include "entity.h"
 #include "renderer.h"
+#include "input.h"
 #include "map.h"
 #include "camera.h"
 #include "light.h"
@@ -29,6 +30,9 @@ void game_init()
     light_shader = shader_load("assets/shader/material.vert", "assets/shader/sun.frag");
     renderer_init();
 
+    // Init mode
+    main_state = EDITOR;
+
     // Init entities
     // entities = map_load_entities("assets/map/light_test.map");
     entities = map_load_entities("assets/map/main.map");
@@ -48,99 +52,49 @@ void game_init()
     // Init camera
     vec3 cam_pos = { 0.0f, 1.0f, 10.0f };
     camera = camera_init(cam_pos, 5.0f, 0.05f);
-
-    // Init mode
-    main_state = NORMAL;
 }
 
 void game_update(float dt)
 {
-    camera_update(&camera, dt);
+    // printf("Current FPS: %.f\n", 1 / delta_time);
 
+    // Check state
+    if (input_key_down('1')) main_state = NORMAL;
+    if (input_key_down('2')) main_state = EDITOR;
+    
     if (main_state == EDITOR) {
 	camera.can_fly = true;
     } else {
 	camera.can_fly = false;
     }
 
-    // Render
+    // Update camera
+    camera.move_front = input_key_down('w');
+    camera.move_back  = input_key_down('s');
+    camera.move_left  = input_key_down('a');
+    camera.move_right = input_key_down('d');
+    camera.move_up    = input_key_down('q');
+    camera.move_down  = input_key_down('e');
+
+    int mouse_xrel = 0;
+    int mouse_yrel = 0;
+    input_mouse_rel_pos(&mouse_xrel, &mouse_yrel);
+
+    camera_rotate(&camera, mouse_xrel, mouse_yrel);
+    camera_move(&camera, dt);
+
+    input_reset_mouse_rel_pos();
+}
+
+void game_render()
+{
     renderer_clear();
+
+    // Render entity
     for (int i = 0; i < arrlen(entities); i++) {
         renderer_render(&entity_shader, &light, &entities[i], &camera);
     }
 
+    // Render light
     renderer_render(&light_shader, &light, &light_entity, &camera);
-}
-
-void game_key_down(char key)
-{
-    switch (key) {
-    case 'w':
-        camera.move_front = true;
-        break;
-    case 's':
-        camera.move_back = true;
-        break;
-    case 'a':
-        camera.move_left = true;
-        break;
-    case 'd':
-        camera.move_right = true;
-	break;
-    case 'q':
-	camera.move_up = true;
-	break;
-    case 'e':
-	camera.move_down = true;
-	break;
-    default:
-        break;
-    }
-}
-
-void game_key_up(char key)
-{
-    switch (key) {
-    case 'w':
-        camera.move_front = false;
-        break;
-    case 's':
-        camera.move_back = false;
-        break;
-    case 'a':
-        camera.move_left = false;
-        break;
-    case 'd':
-        camera.move_right = false;
-	break;
-    case 'q':
-	camera.move_up = false;
-	break;
-    case 'e':
-	camera.move_down = false;
-	break;
-    default:
-        break;
-    }
-}
-
-void game_key_pressed(char key)
-{
-    switch (key) {
-    case '\t':
-        if (main_state == NORMAL) {
-            main_state = EDITOR;
-        } else if (main_state == EDITOR) {
-            main_state = NORMAL;
-        }
-        break;
-    default:
-        break;
-    };
-}
-
-void game_mouse_relative_pos(int x, int y)
-{
-    camera.mouse_xrel = x;
-    camera.mouse_yrel = y;
 }

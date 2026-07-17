@@ -5,21 +5,25 @@ TAR = rg
 
 SRCS = \
 thirdparty/glad/src/glad.c \
-src/game/main.c src/game/game.c \
-src/camera/camera.c \
-src/map/map.c \
-src/object/entity.c src/object/light.c \
-src/render/*.c
+code/game/main.c \
+code/game/game.c \
+code/camera/camera.c \
+code/map/map.c \
+code/object/entity.c \
+code/object/light.c \
+code/render/*.c \
+code/input/input.c
 
 INCLUDES = \
 -Ithirdparty/cglm/include \
 -Ithirdparty/glad/include \
 -Ithirdparty/stb/include \
--Isrc/game \
--Isrc/camera \
--Isrc/map \
--Isrc/object \
--Isrc/render
+-Icode/game \
+-Icode/camera \
+-Icode/map \
+-Icode/object \
+-Icode/render \
+-Icode/input
 
 LIBS = -lSDL2 -lm
 

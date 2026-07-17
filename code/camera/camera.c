@@ -11,9 +11,6 @@ Camera camera_init(vec3 position, float speed, float sensitivity)
     camera.pitch = 0;
     camera.yaw = 0;
 
-    camera.mouse_xrel = 0;
-    camera.mouse_yrel = 0;
-
     camera.can_fly = false;
     camera.move_back = false;
     camera.move_front = false;
@@ -24,14 +21,10 @@ Camera camera_init(vec3 position, float speed, float sensitivity)
     return camera;
 }
 
-void camera_update(Camera *camera, float dt)
+void camera_rotate(Camera *camera, int mouse_xrel, int mouse_yrel)
 {
-    // rot
-    camera->yaw += camera->mouse_xrel * camera->sensitivity;
-    camera->pitch -= camera->mouse_yrel * camera->sensitivity;
-
-    camera->mouse_xrel = 0;
-    camera->mouse_yrel = 0;
+    camera->yaw += mouse_xrel * camera->sensitivity;
+    camera->pitch -= mouse_yrel * camera->sensitivity;
 
     if (camera->pitch > 89.0f) {
         camera->pitch = 89.0f;
@@ -47,7 +40,10 @@ void camera_update(Camera *camera, float dt)
     
     glm_vec3_cross(camera->front, camera->up, camera->right);
     glm_vec3_normalize(camera->right);
+}
 
+void camera_move(Camera *camera, float dt)
+{
     // pos
     vec3 move_dir;
     if (camera->move_front) {
