@@ -13,7 +13,7 @@ void renderer_init()
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-    glClearColor(204.0 / 255.0, 1.0, 1.0, 1.0);
+    // glClearColor(204.0 / 255.0, 1.0, 1.0, 1.0);
 }
 
 void renderer_clear()
@@ -45,6 +45,8 @@ void create_projection_mat(mat4 projection_mat, int window_width, int window_hei
 
 void renderer_render(Shader *shader, Light *light, Entity *entity, Camera *camera)
 {
+    Model model = entity->model;
+    
     glUseProgram(shader->program_id);
 
     // Model matrix
@@ -73,11 +75,6 @@ void renderer_render(Shader *shader, Light *light, Entity *entity, Camera *camer
     glUniformMatrix4fv(glGetUniformLocation(shader->program_id, "projection_mat"), 1, GL_FALSE, (float*)projection_mat);
 
     // Material
-    glUniform3f(glGetUniformLocation(shader->program_id, "material.ambient"), 0.25f, 0.2f, 0.0f);
-    glUniform3f(glGetUniformLocation(shader->program_id, "material.diffuse"), 0.7f, 0.6f, 0.2f);
-    glUniform3f(glGetUniformLocation(shader->program_id, "material.specular"), 0.6f, 0.5f, 0.3f);
-    glUniform1f(glGetUniformLocation(shader->program_id, "material.shininess"), 0.4 * 128.0f);
-    
     glUniform3fv(glGetUniformLocation(shader->program_id, "light.ambient"), 1, light->ambient);
     glUniform3fv(glGetUniformLocation(shader->program_id, "light.diffuse"), 1, light->diffuse);
     glUniform3fv(glGetUniformLocation(shader->program_id, "light.specular"), 1, light->specular);
@@ -85,13 +82,19 @@ void renderer_render(Shader *shader, Light *light, Entity *entity, Camera *camer
     
     glUniform3fv(glGetUniformLocation(shader->program_id, "view_pos"), 1, camera->position);
     
-    // Model
-    Model model = entity->model;
+    glUniform1f(glGetUniformLocation(shader->program_id, "material.shininess"), 64.0f);
 
-    Texture texture = model.texture;
+    Texture diffuse_texture = model.diffuse_texture;
+    glUniform1i(glGetUniformLocation(shader->program_id, "material.diffuse"), 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture.texture_id);
-    
+    glBindTexture(GL_TEXTURE_2D, diffuse_texture.texture_id);
+
+    Texture specular_texture = model.specular_texture;
+    glUniform1i(glGetUniformLocation(shader->program_id, "material.specular"), 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specular_texture.texture_id);
+
+    // Mesh
     Mesh mesh = model.mesh;
     glBindVertexArray(mesh.vao_id);
     glDrawElements(GL_TRIANGLES, mesh.index_count, GL_UNSIGNED_INT, 0);

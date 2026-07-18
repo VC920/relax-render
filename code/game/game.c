@@ -31,18 +31,18 @@ void game_init()
     renderer_init();
 
     // Init mode
-    main_state = EDITOR;
+    main_state = NORMAL;
 
     // Init entities
     // entities = map_load_entities("assets/map/light_test.map");
     entities = map_load_entities("assets/map/main.map");
 
     // Init light
-    Model sphere_model = model_load("assets/model/sphere.obj");
-    light = light_init(20.0f, 20.0f, 0.0f);
-    light_set_ambient(&light, 0.2f, 0.2f, 0.2f);
+    Model sphere_model = model_load("assets/model/base_model/sphere.obj");
+    light = light_init(0.0f, 2.0f, -10.0f);
+    light_set_ambient(&light, 0.1f, 0.1f, 0.1f);
     light_set_diffuse(&light, 0.5f, 0.5f, 0.5f);
-    light_set_specular(&light, 1.0f, 1.0f, 1.0f);
+    light_set_specular(&light, 0.5f, 0.5f, 0.5f);
     
     light_entity = entity_init(&sphere_model);
     light_entity.position[0] = light.position[0];

@@ -18,19 +18,28 @@ Entity *map_load_entities(const char *path)
         Entity entity;
         char entity_name[256] = {0};
         char model_path[256] = {0};
-        char texture_path[256] = {0};
-        sscanf(line, "%s%s%s [%f/%f/%f] [%f/%f/%f] [%f]",
-            entity_name, model_path, texture_path,
-            &entity.position[0], &entity.position[1], &entity.position[2],
-            &entity.rotation[0], &entity.rotation[1], &entity.rotation[2],
-            &entity.scale
+        char diffuse_texture_path[256] = {0};
+	char specular_texture_path[256] = {0};
+        sscanf(line, "%s%s%s%s [%f/%f/%f] [%f/%f/%f] [%f]",
+	       entity_name, model_path, diffuse_texture_path, specular_texture_path,
+	       &entity.position[0], &entity.position[1], &entity.position[2],
+	       &entity.rotation[0], &entity.rotation[1], &entity.rotation[2],
+	       &entity.scale
         );
 
+	// Model
         Model model = model_load(model_path);
-        if (strcmp(texture_path, "NULL") != 0) {
-            model.texture = texture_load(texture_path);
+
+	// Diffuse texture
+        if (strcmp(diffuse_texture_path, "NULL") != 0) {
+            model.diffuse_texture = texture_load(diffuse_texture_path);
         }
 
+	// Specular texture
+	if (strcmp(specular_texture_path, "NULL") != 0) {
+            model.specular_texture = texture_load(specular_texture_path);
+        }
+	
         entity.model = model;
         arrpush(entities, entity);
 

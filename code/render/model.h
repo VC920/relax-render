@@ -6,7 +6,8 @@
 
 typedef struct {
     Mesh mesh;
-    Texture texture;
+    Texture diffuse_texture;
+    Texture specular_texture;
 } Model;
 
 Model model_load(const char *path);
