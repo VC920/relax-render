@@ -3,31 +3,35 @@
 #include <stdbool.h>
 #include <stb_ds.h>
 #include <cglm/cglm.h>
+#include <SDL2/SDL.h>
 #include "entity.h"
 #include "renderer.h"
 #include "input.h"
 #include "map.h"
 #include "camera.h"
-#include "light.h"
+#include "directional_light.h"
+#include "point_light.h"
+#include "spot_light.h"
 
 typedef enum {
     NORMAL,
     EDITOR
 } game_state;
 
-static Shader entity_shader;
-static Shader light_shader;
-static Entity *entities;
-static Light light;
-static Entity light_entity;
+static Shader material_shader;
+static Shader base_shader;
+static Entity *static_entities = NULL;
+static DirectionalLight direction_light;
+static PointLight *point_lights = NULL;
+static SpotLight *spot_lights = NULL;
 static Camera camera;
 static game_state main_state; 
 
 void game_init()
 {
     // Init renderer
-    entity_shader = shader_load("assets/shader/material.vert", "assets/shader/material.frag");
-    light_shader = shader_load("assets/shader/material.vert", "assets/shader/sun.frag");
+    material_shader = shader_load("assets/shader/material.vert", "assets/shader/material.frag");
+    base_shader = shader_load("assets/shader/base.vert", "assets/shader/base.frag");
     renderer_init();
 
     // Init mode
@@ -35,20 +39,8 @@ void game_init()
 
     // Init entities
     // entities = map_load_entities("assets/map/light_test.map");
-    entities = map_load_entities("assets/map/main.map");
+    map_load("assets/map/main.map", &static_entities, &direction_light, &point_lights, &spot_lights);
 
-    // Init light
-    Model sphere_model = model_load("assets/model/base_model/sphere.obj");
-    light = light_init(0.0f, 2.0f, -10.0f);
-    light_set_ambient(&light, 0.1f, 0.1f, 0.1f);
-    light_set_diffuse(&light, 0.5f, 0.5f, 0.5f);
-    light_set_specular(&light, 0.5f, 0.5f, 0.5f);
-    
-    light_entity = entity_init(&sphere_model);
-    light_entity.position[0] = light.position[0];
-    light_entity.position[1] = light.position[1];
-    light_entity.position[2] = light.position[2];
-    
     // Init camera
     vec3 cam_pos = { 0.0f, 1.0f, 10.0f };
     camera = camera_init(cam_pos, 5.0f, 0.05f);
@@ -68,7 +60,7 @@ void game_update(float dt)
 	camera.can_fly = false;
     }
 
-    // Update camera
+    // Update camera    
     camera.move_front = input_key_down('w');
     camera.move_back  = input_key_down('s');
     camera.move_left  = input_key_down('a');
@@ -91,10 +83,15 @@ void game_render()
     renderer_clear();
 
     // Render entity
-    for (int i = 0; i < arrlen(entities); i++) {
-        renderer_render(&entity_shader, &light, &entities[i], &camera);
+    for (int i = 0; i < arrlen(static_entities); i++) {
+        renderer_render(&material_shader, &direction_light, point_lights, spot_lights, &static_entities[i], &camera);
     }
 
     // Render light
-    renderer_render(&light_shader, &light, &light_entity, &camera);
+    for (int i = 0; i < arrlen(point_lights); i++) {
+	renderer_render_sphere(&base_shader, point_lights[i].position, point_lights[i].color, &camera);
+    }
+    for (int i = 0; i < arrlen(spot_lights); i++) {
+	renderer_render_sphere(&base_shader, spot_lights[i].position, spot_lights[i].color, &camera);
+    }
 }

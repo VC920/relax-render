@@ -1,13 +1,17 @@
 #include "entity.h"
 
-Entity entity_init(Model *model)
+void entity_set_position(Entity *entity, float x, float y, float z)
 {
-    return (Entity) { 
-        .model = *model,
-        .position = { 0, 0, 0 },
-        .rotation = { 0, 0, 0 },
-        .scale = 1
-    };
+    entity->position[0] = x;
+    entity->position[1] = y;
+    entity->position[2] = z;
+}
+
+void entity_set_rotation(Entity *entity, float x, float y, float z)
+{
+    entity->rotation[0] = x;
+    entity->rotation[1] = y;
+    entity->rotation[2] = z;
 }
 
 void increase_position(Entity *entity, float dx, float dy, float dz)

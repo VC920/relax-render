@@ -5,14 +5,13 @@ TAR = rg
 
 SRCS = \
 thirdparty/glad/src/glad.c \
-code/game/main.c \
-code/game/game.c \
-code/camera/camera.c \
-code/map/map.c \
-code/object/entity.c \
-code/object/light.c \
+code/game/*.c \
+code/camera/*.c \
+code/map/*.c \
+code/entity/*.c \
+code/light/*.c \
 code/render/*.c \
-code/input/input.c
+code/input/*.c
 
 INCLUDES = \
 -Ithirdparty/cglm/include \
@@ -21,7 +20,8 @@ INCLUDES = \
 -Icode/game \
 -Icode/camera \
 -Icode/map \
--Icode/object \
+-Icode/entity \
+-Icode/light \
 -Icode/render \
 -Icode/input
 

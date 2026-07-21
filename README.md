@@ -1,10 +1,15 @@
 # Relax Game
 a little pure c program 3d game
 
+1.base model  
 ![demo1](./assets/texture/demo/demo1.png)
 ![demo2](./assets/texture/demo/demo2.png)
+2.base light  
 ![demo3](./assets/texture/demo/demo3.png)
+3.light map  
 ![demo4](./assets/texture/demo/demo4.png)
+4.mulity light  
+![demo5](./assets/texture/demo/demo5.png)
 
 ## Build
 make && make run
@@ -25,6 +30,7 @@ https://polyhaven.com/
 3.fps cmaera  
 4.phong lighting  
 5.light map
+6.mulity light
 
 ## 一个大概的流程
 0.平台，api，游戏分离  
@@ -33,4 +39,5 @@ https://polyhaven.com/
 3.封装一个实体，包含模型，pos，rot，scale（为地图服务）  
 4.解析地图，加载实体数组  
 5.第一人称可以升降的相机  
-6.风氏光照  
+6.风氏光照
+7.多光源  
